@@ -1,0 +1,357 @@
+function Weather(arg1, arg2, arg3, arg4, arg5) {
+  let autolang = "0";
+  let currentDate = new Date();
+  var ctime = ('0' + currentDate.getHours()).substr(-2) + "" + ('0' + currentDate.getMinutes()).substr(-2);
+  var navcode = navigator.language.substr(0, 2);
+  if(autolang === "1" && navcode != "en") {
+    var wttr_json = "https://wttr.in/" + arg1.split("~")[0] + "?lang=" + navcode + "&format=j1";
+    var langcode = "lang_" + wttr_json.split("=")[1].split("&")[0];
+  } else {
+    var wttr_json = "https://wttr.in/" + arg1.split("~")[0] + "?format=j1";
+  }
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', wttr_json, false);
+  xhr.send(null);
+  var parsejson = JSON.parse(xhr.responseText);
+  var observetime = parsejson.current_condition[0].observation_time;
+  var sunrise = parsejson.weather[0].astronomy[0].sunrise.replace(":", "").replace("AM", "");
+  var sunset = parsejson.weather[0].astronomy[0].sunset.replace(":", "").replace("PM", "");
+  var sunset24h = parseInt(sunset) + 1200;
+  if(arg3 === "10" || arg3 === "11" || arg3 === "11-F" || arg3 === "12" || arg3 === "13" || arg3 === "14" || arg3 === "15" || arg3 === "15-12h" || arg3 === "20" || arg3 === "20-K" || arg3 === "21" || arg3 === "28") {
+    var plushours = "0";
+    if(arg5 > "0") {
+      var nexttime = currentDate.getHours() + (+arg5 * 3);
+      var ctime = ('0' + nexttime).substr(-2) + "" + ('0' + currentDate.getMinutes()).substr(-2);
+      if(nexttime >= "24") {
+        var plushours = "1";
+        var nexttime = nexttime - "24";
+      }
+      if(nexttime >= "0") {
+        var arg4 = "0";
+      }
+      if(nexttime >= "3") {
+        var arg4 = "1";
+      }
+      if(nexttime >= "6") {
+        var arg4 = "2";
+      }
+      if(nexttime >= "9") {
+        var arg4 = "3";
+      }
+      if(nexttime >= "12") {
+        var arg4 = "4";
+      }
+      if(nexttime >= "15") {
+        var arg4 = "5";
+      }
+      if(nexttime >= "18") {
+        var arg4 = "6";
+      }
+      if(nexttime >= "21") {
+        var arg4 = "7";
+      }
+    } else {
+      if(arg4 > 7 && arg4 < 16) {
+        var plushours = "1";
+        var arg4 = arg4 - "8";
+      }
+      if(arg4 > 15) {
+        var plushours = "2";
+        var arg4 = arg4 - "16";
+      }
+    }
+    var conditionid = parsejson.weather[plushours].hourly[arg4].weatherCode;
+    var condition = parsejson.weather[plushours].hourly[arg4].weatherDesc[0].value;
+    if(langcode) {
+      var langcondition = parsejson.weather[plushours].hourly[arg4][langcode][0].value;
+    }
+  } else {
+    var conditionid = parsejson.current_condition[0].weatherCode;
+    var condition = parsejson.current_condition[0].weatherDesc[0].value;
+    if(langcode) {
+      var langcondition = parsejson.current_condition[0][langcode][0].value;
+    }
+  }
+  var weather_cond_dict = `{"113":"1","116":"2","119":"4","122":"4","143":"12","148":"12","176":"5","179":"9","182":"10","185":"5","200":"8","227":"11","230":"11","260":"12","263":"5","266":"5","281":"6","284":"11","293":"5","296":"5","299":"6","302":"6","305":"6","308":"6","311":"10","314":"10","317":"10","320":"10","323":"9","326":"9","329":"9","332":"9","335":"9","338":"11","350":"9","353":"5","356":"6","359":"8","362":"10","365":"10","368":"9","371":"11","374":"9","377":"9","386":"8","389":"8","392":"8","395":"11","Blizzard":"11","Blowing snow":"11","Clear":"1","Clear/sunny":"1","Cloudy":"4","Drizzle":"5","Drizzle and rain":"5","Fog":"12","Freezing drizzle":"6","Freezing fog":"12","Hail with thunderstorm":"8","Haze":"13","Heavy freezing drizzle":"11","Heavy rain":"6","Heavy rain and hail with thunderstorm":"8","Heavy rain at times":"6","Heavy rain with thunderstorm":"8","Heavy snow":"11","Ice pellets":"9","Light Rain, Rain Shower":"5","Light drizzle":"5","Light drizzle and rain":"5","Light freezing rain":"10","Light rain":"5","Light rain and hail with thunderstorm":"8","Light rain and small hail/snow pallets with thunderstorm":"8","Light rain and snow":"10","Light rain and snow shower":"10","Light rain shower":"5","Light rain with thunderstorm":"8","Light showers of ice pellets":"9","Light sleet":"10","Light sleet showers":"10","Light snow":"9","Light snow showers":"9","Low drifting snow":"9","Mist":"12","Moderate or heavy freezing rain":"10","Moderate or heavy rain in area with thunder":"8","Moderate or heavy rain shower":"6","Moderate or heavy rain with thunder":"8","Moderate or heavy showers of ice pellets":"9","Moderate or heavy sleet":"10","Moderate or heavy sleet showers":"10","Moderate or heavy snow in area with thunder":"11","Moderate or heavy snow showers":"11","Moderate or heavy snow with thunder":"11","Moderate rain":"6","Moderate rain at times":"6","Moderate snow":"9","Overcast":"3","Partial fog":"12","Partly cloudy":"2","Patches of fog":"12","Patchy freezing drizzle nearby":"5","Patchy freezing drizzle possible":"11","Patchy heavy snow":"9","Patchy light drizzle":"5","Patchy light rain":"5","Patchy light rain in area with thunder":"8","Patchy light rain with thunder":"8","Patchy light snow":"9","Patchy light snow in area with thunder":"8","Patchy light snow with thunder":"8","Patchy moderate snow":"9","Patchy rain nearby":"5","Patchy rain possible":"5","Patchy sleet nearby":"10","Patchy sleet possible":"10","Patchy snow nearby":"9","Patchy snow possible":"9","Rain":"5","Rain Shower":"5","Rain and hail with thunderstorm":"8","Rain and snow shower":"10","Rain with thunderstorm":"8","Shallow fog":"12","Shower in vicinity":"5","Smoke":"13","Snow":"9","Squalls":"7","Sunny":"1","Thunderstorm":"8","Thunderstorm in vicinity":"8","Thundery outbreaks in nearby":"8","Thundery outbreaks possible":"8","Torrential rain shower":"8","Unknown":"dunno","Unknown precipitation":"dunno"}`;
+  var condition_label = JSON.parse(weather_cond_dict);
+  if(condition_label[conditionid]) {
+    var condicon = conditionid;
+  } else {
+    var condicon = condition;
+  }
+  if(ctime >= sunrise && ctime <= sunset24h) {
+    var endname = "d.png";
+  } else {
+    var endname = "n.png";
+  }
+  if(arg3 === "1" || arg3 === "13") {
+    if(condition.includes("Unknown")) {
+      var iconid = condition_label[condicon] + ".png";
+    } else {
+      var iconid = condition_label[condicon] + endname;
+    }
+    if(arg2.toLowerCase() === "default") {
+      var icon_dict = `{"1d.png":["d0nFpjW4\/1d.png"],"1n.png":["L8pnMvTp\/1n.png"],"2d.png":["cJDHwWNx\/2d.png"],"2n.png":["MZL6ztzL\/3n.png"],"3d.png":["2j1qd16P\/3d.png"],"3n.png":["MZL6ztzL\/3n.png"],"4d.png":["fbMZ8rvV\/4d.png"],"4n.png":["xdj8XChp\/4n.png"],"5d.png":["qMCkqnRv\/5d.png"],"5n.png":["X7Fpht9L\/5n.png"],"6d.png":["Mp2zQTMb\/6d.png"],"6n.png":["tJ8pDRrb\/6n.png"],"7d.png":["XJzb7765\/7d.png"],"7n.png":["FzYhjkVG\/7n.png"],"8d.png":["XNBJGt1W\/8d.png"],"8n.png":["wMRdt89G\/8n.png"],"9d.png":["5yzNhFQy\/9d.png"],"9n.png":["rmKp9H8S\/9n.png"],"10d.png":["rz62xnmF\/10d.png"],"10n.png":["hG04gBG8\/10n.png"],"11d.png":["LXw8QVXG\/11d.png"],"11n.png":["zGF3DWtR\/11n.png"],"12d.png":["C1PFBskz\/12d.png"],"12n.png":["bY4ZmqSd\/12n.png"],"13d.png":["C1PFBskz\/12d.png"],"13n.png":["nh4pYJq8\/13n.png"],"14d.png":["0QQvsKFx\/14d.png"],"14n.png":["ydY18bJM\/14n.png"],"dunno.png":["XqwwNtSf\/dunno.png"]}`;
+    } else {
+      var icon_dict = `{` + arg2 + `}`;
+    }
+    var condition_icon = JSON.parse(icon_dict);;
+    sendToWidgy("https://i.postimg.cc/" + condition_icon[iconid]);
+  }
+  if(arg3 === "2" || arg3 === "12") {
+    if(condition.includes("Unknown")) {
+      sendToWidgy("Unknown");
+    } else {
+      if(wttr_json.includes("lang=")) {
+        sendToWidgy(langcondition.toLowerCase());
+      } else {
+        sendToWidgy(condition.toLowerCase());
+      }
+    }
+  }
+  if(arg3 === "3") {
+    sendToWidgy(parsejson.current_condition[0].temp_C);
+  }
+  if(arg3 === "3-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.current_condition[0].temp_C + 32));
+  }
+  if(arg3 === "4") {
+    sendToWidgy(parsejson.current_condition[0].cloudcover);
+  }
+  if(arg3 === "5") {
+    sendToWidgy(parsejson.nearest_area[0].areaName[0].value);
+  }
+  if(arg3 === "6") {
+    sendToWidgy(parsejson.nearest_area[0].region[0].value);
+  }
+  if(arg3 === "7") {
+    if(condition.includes("Unknown")) {
+      var wallid = condition_label[condition] + ".png";
+    } else {
+      var wallid = condition_label[condition] + endname;
+    }
+    var walls_json = "https://raw.githubusercontent.com/thewaytozion/Shortcuts/main/HTML_Sandbox/HTML_Sites/WWalls/wwalls.json";
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', walls_json, false);
+    xhr.send(null);
+    var parsejson = JSON.parse(xhr.responseText);
+    var random = parsejson[wallid][Math.floor(Math.random() * parsejson[wallid].length)];
+    sendToWidgy("https://source.unsplash.com/" + random + "/364x382");
+  }
+  if(arg3 === "8") {
+    sendToWidgy(parsejson.current_condition[0].FeelsLikeC);
+  }
+  if(arg3 === "8-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.current_condition[0].FeelsLikeC + 32));
+  }
+  if(arg3 === "9") {
+    sendToWidgy(parsejson.weather[0].astronomy[0].moon_phase);
+  }
+  if(arg3 === "9-Icon") {
+    var moon_dict = `{"New Moon":["qMPqSQLM\/moon-1.png"],"Waxing Crescent":["5NYjsD8R\/moon-2.png"],"First Quarter":["fL8kPNH6\/moon-3.png"],"Waxing Gibbous":["5t10N0Th\/moon-4.png"],"Full Moon":["QCPCXqZm\/moon-5.png"],"Waning Gibbous":["QCVVGywV\/moon-6.png"],"Last Quarter":["Mp1HSRP0\/moon-7.png"],"Waning Crescent":["CM6zHwn8\/moon-8.png"]}`;
+    var moon_icon = JSON.parse(moon_dict);;
+    sendToWidgy("https://i.postimg.cc/" + moon_icon[parsejson.weather[0].astronomy[0].moon_phase]);
+  }
+  if(arg3 === "10") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].cloudcover);
+  }
+  if(arg3 === "11") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].tempC);
+  }
+  if(arg3 === "11-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[plushours].hourly[arg4].tempC + 32));
+  }
+  if(arg3 === "14") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].chanceofrain);
+  }
+  if(arg3 === "15") {
+    var wtime = ("0" + parsejson.weather[plushours].hourly[arg4].time).substr(-4);
+    if(wtime === "00") {
+      var hourlytime = "00:00";
+    } else {
+      var hourlytime = wtime.slice(0, 2) + ":" + wtime.slice(2, 4);
+    }
+    sendToWidgy(hourlytime);
+  }
+  if(arg3 === "15-12h") {
+    var wtime = ("0" + parsejson.weather[plushours].hourly[arg4].time).substr(-4);
+    if(wtime < 1200) {
+      var AMPM = "AM";
+    } else {
+      var AMPM = "PM";
+    }
+    if(wtime === "00") {
+      var wtime = "1200";
+    }
+    if(wtime === "1200") {
+      var hourlytime = wtime.slice(0, 2) + ":" + wtime.slice(2, 4);
+    } else if(wtime > "1200") {
+      var wtime2 = (wtime - 1200) / 100;
+      var hourlytime = wtime2 + ":" + wtime.slice(2, 4);
+    } else {
+      var hourlytime = wtime.slice(1, 2) + ":" + wtime.slice(2, 4);
+    }
+    sendToWidgy(hourlytime + " " + AMPM);
+  }
+  if(arg3 === "16") {
+    sendToWidgy(arg1.split("~")[1]);
+  }
+  if(arg3 === "17") {
+    sendToWidgy(parsejson.current_condition[0].windspeedMiles + " mph");
+  }
+  if(arg3 === "17-K") {
+    sendToWidgy(parsejson.current_condition[0].windspeedKmph + " km/h");
+  }
+  if(arg3 === "18") {
+    sendToWidgy(parsejson.current_condition[0].winddir16Point);
+  }
+  if(arg3 === "19") {
+    sendToWidgy(parsejson.weather[0].sunHour);
+  }
+  if(arg3 === "19-d2") {
+    sendToWidgy(parsejson.weather[1].sunHour);
+  }
+  if(arg3 === "19-d3") {
+    sendToWidgy(parsejson.weather[2].sunHour);
+  }
+  if(arg3 === "20") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].windspeedMiles + " mph");
+  }
+  if(arg3 === "20-K") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].windspeedKmph + " km/h");
+  }
+  if(arg3 === "21") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].winddir16Point);
+  }
+  if(arg3 === "22") {
+    sendToWidgy(parsejson.weather[0].mintempC);
+  }
+  if(arg3 === "22-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[0].mintempC + 32));
+  }
+  if(arg3 === "22-d2") {
+    sendToWidgy(parsejson.weather[1].mintempC);
+  }
+  if(arg3 === "22-d2-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[1].mintempC + 32));
+  }
+  if(arg3 === "22-d3") {
+    sendToWidgy(parsejson.weather[2].mintempC);
+  }
+  if(arg3 === "22-d3-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[2].mintempC + 32));
+  }
+  if(arg3 === "23") {
+    sendToWidgy(parsejson.weather[0].maxtempC);
+  }
+  if(arg3 === "23-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[0].maxtempC + 32));
+  }
+  if(arg3 === "23-d2") {
+    sendToWidgy(parsejson.weather[1].maxtempC);
+  }
+  if(arg3 === "23-d2-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[1].maxtempC + 32));
+  }
+  if(arg3 === "23-d3") {
+    sendToWidgy(parsejson.weather[2].maxtempC);
+  }
+  if(arg3 === "23-d3-F") {
+    sendToWidgy(Math.round(1.8 * +parsejson.weather[2].maxtempC + 32));
+  }
+  if(arg3 === "24") {
+    sendToWidgy(sunrise.slice(0, 2) + ":" + sunrise.slice(2, 4));
+  }
+  if(arg3 === "24-12h") {
+    sendToWidgy(parsejson.weather[0].astronomy[0].sunrise);
+  }
+  if(arg3 === "25") {
+    sendToWidgy((+sunset.slice(0, 2) + 12) + ":" + sunset.slice(2, 4));
+  }
+  if(arg3 === "25-12h") {
+    if(parsejson.weather[0].astronomy[0].sunset.startsWith("0")) {
+      sendToWidgy(parsejson.weather[0].astronomy[0].sunset.substr(1));
+    } else {
+      sendToWidgy(parsejson.weather[0].astronomy[0].sunset);
+    }
+  }
+  if(arg3 === "26") {
+    if(observetime.includes("AM")) {
+      if(observetime.split(":")[0] === "12") {
+        var remampm = "00:" + observetime.split(":")[1]
+      } else {
+        var remampm = observetime.split(":")[0] + ":" + observetime.split(":")[1];
+      }
+    } else {
+      if(observetime.split(":")[0] === "12") {
+        var remampm = "12:" + observetime.split(":")[1]
+      } else {
+        var remampm = (+observetime.split(":")[0] + 12) + ":" + observetime.split(":")[1];
+      }
+    }
+    sendToWidgy(("0" + remampm.split(":")[0]).substr(-2) + ":" + remampm.split(":")[1].split(" ")[0]);
+  }
+  if(arg3 === "26-12h") {
+    sendToWidgy(observetime);
+  }
+  if(arg3 === "27") {
+    sendToWidgy(parsejson.current_condition[0].humidity);
+  }
+  if(arg3 === "28") {
+    sendToWidgy(parsejson.weather[plushours].hourly[arg4].humidity);
+  }
+}
+/*
+var _output
+1 = Icons
+2 = Weather condition
+3 = Temp (add -F for Fahrenheit)
+4 = Cloud clover
+5 = Area closest to location
+6 = County
+7 = Random weather walls
+8 = Feels like temp (add -F for Fahrenheit)
+9 = Moon Phase (add -Icon for image)
+10 = Hourly cloud cover
+11 = Hourly temp (add -F for Fahrenheit)
+12 = Hourly weather condition
+13 = Hourly icon
+14 = Hourly chance of rain %
+15 = Hourly time stamp (add -12h for A/PM)
+16 = Use location var as location
+17 = Wind speed (add -K for Kmph)
+18 = Wind direction
+19 = Hours of daylight
+20 = Hourly wind speed (add -K for Kmph)
+21 = Hourly wind direction
+22 = Min temp (add -d2 or -d3 & add -F for Fahrenheit)
+23 = Max temp (add -d2 or -d3 & add -F for Fahrenheit)
+24 = Sunrise (add -12h at the end for A/PM)
+25 = Sunset (add -12h at the end for A/PM)
+26 = Server weather refresh time (add -12h at the end for A/PM)
+27 = Humidity
+28 = Hourly humidity
+————————————
+var _hourly
+Display the alternative weather data.
+Times 00, 03, 06, 09, 12, 15, 18 & 21 hours
+day 1 = 0 - 7
+day 2 = 8 - 15
+day 3 = 16 - 23
+————————————
+var _hourlyplus
+This is used to display the next weather condition.
+Use 1 - 8
+————————————
+var _icons
+To add your own icons replace default with your own dictionary of icons.
+Here is a shortcut I made to do the dictionary process, you just supply the direct links to the images. Use images from YoorWeather or HTML Sandbox only as they are labeled correctly.
+(https://www.icloud.com/shortcuts/30d9f2c841df414b8f055fc816f8e142)
+Also upload to postimg.cc and pick direct link in the drop down bar after upload is complete.
+*/
+var _location = "21.1619,-86.8515~Cancun";
+var _output = "1";
+var _hourly = "0";
+var _hourlyplus = "0";
+var _icons = `"1d.png":["j2y32GcW/26.png"],"1n.png":["wTVFr5Gd/10.png"],"2d.png":["9QDTBG3b/27.png"],"2n.png":["90xRdfJs/15.png"],"3d.png":["X7PW9y23/3d.png"],"3n.png":["NjrcDfVX/3n.png"],"4d.png":["8zb5Mcc4/35.png"],"4n.png":["8zb5Mcc4/35.png"],"5d.png":["kX3XHKtw/7.png"],"5n.png":["kX3XHKtw/7.png"],"6d.png":["hGjSm0H4/23.png"],"6n.png":["hGjSm0H4/23.png"],"7d.png":["MZDKfH2K/7d.png"],"7n.png":["j2sxk0Nb/7n.png"],"8d.png":["QMwrTZQS/28.png"],"8n.png":["QMwrTZQS/28.png"],"9d.png":["PrVXK75g/9d.png"],"9n.png":["mgcbnSct/9n.png"],"10d.png":["TY32Vxfj/10d.png"],"10n.png":["TY32Vxfj/10d.png"],"11d.png":["2fLcgTGBV/5.png"],"11n.png":["fLcgTGBV/5.png"],"12d.png":["HLXTYs9m/12d.png"],"12n.png":["PJrHQbsf/12n.png"],"13d.png":["sfwsDL7M/13n.png"],"13n.png":["sfwsDL7M/13n.png"],"14d.png":["MZDKfH2K/7d.png"],"14n.png":["j2sxk0Nb/7n.png"],"dunno.png":["k4PXKtgD/dunno.png"]`;
+Weather(_location, _icons, _output, _hourly, _hourlyplus);
